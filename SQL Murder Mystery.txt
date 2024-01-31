@@ -1,0 +1,102 @@
+/*
+select * from crime_scene_report
+	where date = '20180115' and type = 'murder' and city = 'SQL City';
+
+ -- Security footage shows that there were 2 witnesses. 
+ -- The first witness lives at the last house on "Northwestern Dr". 
+ -- The second witness, named Annabel, lives somewhere on "Franklin Ave".             
+           
+select * from person
+where name like '%Annabel%' and address_street_name = 'Franklin Ave'
+union
+select * from person 
+where address_number = (select max(address_number) from person
+	where address_street_name = 'Northwestern Dr') and
+	address_street_name = 'Northwestern Dr'
+
+-- Morty Schapiro  
+-- Annabel Miller
+
+id	name	license_id	address_number	address_street_name	ssn
+14887	Morty Schapiro	118009	4919	Northwestern Dr	111564949
+16371	Annabel Miller	490173	103	Franklin Ave	318771143
+
+
+select * from interview
+where person_id in (14887, 16371);
+	
+person_id	transcript
+14887	I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. The man got into a car with a plate that included "H42W".
+16371	I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
+
+
+
+select * from get_fit_now_member
+where membership_status = 'gold' 
+and membership_start_date < '20180115'
+and id like '48Z%';
+
+ id	person_id	name	membership_start_date	membership_status
+48Z7A	28819	Joe Germuska	20160305	gold
+48Z55	67318	Jeremy Bowers	20160101	gold      
+
+
+
+select * from drivers_license
+where plate_number like '%H42W%'
+and gender = 'male';
+
+id	age	height	eye_color	hair_color	gender	plate_number	car_make	car_model
+423327	30	70	brown	brown	male	0H42W2	Chevrolet	Spark LS
+664760	21	71	black	black	male	4H42WR	Nissan	Altima
+
+
+
+select p.name from drivers_license d
+left join person p
+on d.id = p.license_id
+where d.plate_number like '%H42W%'
+and d.gender = 'male' and p.name in (
+  select name from get_fit_now_member
+	where membership_status = 'gold' 
+	and membership_start_date < '20180115'
+	and id like '48Z%');
+
+
+-- Jeremy Bowers
+
+-- Additional task
+
+
+select * from interview
+where person_id = (select id from person where name = 'Jeremy Bowers');
+
+	I was hired by a woman with a lot of money. 
+	I don't know her name but I know she's around 5'5" (65") or 5'7" (67"). 
+	She has red hair and she drives a Tesla Model S. 
+	I know that she attended the SQL Symphony Concert 3 times in December 2017.
+	
+
+
+select pp.name 
+from facebook_event_checkin f
+left join person pp
+on f.person_id = pp.id
+where f.date >= '20171201' and date <= '20171231'
+and f.event_name like '%SQL%'
+and f.person_id in 
+(select p.id from drivers_license d
+left join person p
+on d.id = p.license_id
+where d.gender = 'female'
+and d.car_make = 'Tesla'
+and d.car_model = 'Model S'
+and d.hair_color = 'red'
+and d.height between 65 and 67)
+group by person_id
+having count(*) >= 3
+
+*/
+
+-- Miranda Priestly
+
